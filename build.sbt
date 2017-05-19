@@ -22,7 +22,26 @@ lazy val app = Project(id = "log-server", base = file("."), settings = Seq(
   libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.2", // Logging
   libraryDependencies += "net.openhft" % "koloboke-api-jdk8" % "0.6.8", // Fast Map collections
   libraryDependencies += "net.openhft" % "koloboke-impl-jdk8" % "0.6.8",
-  libraryDependencies += "com.google.code.findbugs" % "jsr305" % "2.0.1",  // Nullable annotations
+  libraryDependencies += "com.google.code.findbugs" % "jsr305" % "2.0.1", // Nullable annotations
   libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5", // JSON support
-  libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.3" exclude("com.google.guava", "guava") // JSON support
+  libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.3" exclude("com.google.guava", "guava"), // JSON support
+
+  // Deploy settings
+  startYear := Some(2015),
+  homepage := Some(url("https://github.com/citrum/log-server")),
+  licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
+  bintrayVcsUrl := Some("https://github.com/citrum/log-server"),
+  bintrayOrganization := Some("citrum"),
+  // No Javadoc
+  publishArtifact in(Compile, packageDoc) := false,
+  publishArtifact in packageDoc := false,
+  sources in(Compile, doc) := Nil,
+
+  // Publish fat jar
+  artifact in(Compile, assembly) := {
+    val art = (artifact in(Compile, assembly)).value
+    art.copy(`classifier` = Some("assembly"))
+  }
 ))
+
+addArtifact(artifact in(Compile, assembly), assembly)
