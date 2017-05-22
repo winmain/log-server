@@ -14,9 +14,6 @@ lazy val app = Project(id = "log-server", base = file("."), settings = Seq(
   resourceDirectory in Compile := baseDirectory.value / "resource",
   resourceDirectory in Test := baseDirectory.value / "resource",
 
-  assemblyJarName in assembly := "log-server.jar",
-  mainClass in assembly := Some("Cmd"),
-
   libraryDependencies += "org.specs2" %% "specs2-core" % "3.7" % "test",
   libraryDependencies += "org.specs2" %% "specs2-mock" % "3.7" % "test",
   libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.2", // Logging
@@ -25,6 +22,9 @@ lazy val app = Project(id = "log-server", base = file("."), settings = Seq(
   libraryDependencies += "com.google.code.findbugs" % "jsr305" % "2.0.1", // Nullable annotations
   libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5", // JSON support
   libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.3" exclude("com.google.guava", "guava"), // JSON support
+
+  assemblyJarName in assembly := "log-server.jar",
+  mainClass in assembly := Some("Cmd"),
 
   // Deploy settings
   startYear := Some(2015),
