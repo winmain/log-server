@@ -1,7 +1,7 @@
 val DefaultScalaVersion = "2.11.11"
 
 lazy val app = Project(id = "log-server", base = file("."), settings = Seq(
-  version := "1.0",
+  version := "1.1",
 
   scalaVersion := DefaultScalaVersion,
   scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-language:existentials"),

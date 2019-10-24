@@ -30,7 +30,7 @@ class LogWriterClient(writeDir: File,
     if (addProcessSuffix) "current-" + ManagementFactory.getRuntimeMXBean.getName.split('@')(0)
     else "current")
 
-  val version = 1
+  val version = 2
   val charset = StandardCharsets.UTF_8
 
   def append(normalizedTableName: String, maybeId: Option[Int], timestamp: Long, log: String) {

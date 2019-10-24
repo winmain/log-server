@@ -24,7 +24,7 @@ class StorageOpts {
    * -Xmx=1G, и после этого получить OutOfMemoryError. Поэтому, потолок здесь снижен до 2М записей.
    */
   var maxRecordNum: Int = 2000000
-  var recordStorageVersion: Int = 1
+  var recordStorageVersion: Int = 2
   var recordStorageHeaderSize: Int = 64
 
   /**
