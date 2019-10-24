@@ -6,7 +6,7 @@ import core.reader.{MemoryWiseLogWrapper, OldLogReader}
 import core.storage.{AppendableBigStorage, RealDirectory}
 import org.slf4j.Logger
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 case class ConvertYearCommand() extends Command {
   /**
@@ -22,7 +22,7 @@ case class ConvertYearCommand() extends Command {
     val yearDir = Paths.get(params(1))
 
     val big: AppendableBigStorage = new AppendableBigStorage(new RealDirectory(dbDir))
-    for (monthDir <- Files.newDirectoryStream(yearDir).filter(Files.isDirectory(_)).toVector.sortBy(_.getFileName.toString)) {
+    for (monthDir <- Files.newDirectoryStream(yearDir).asScala.filter(Files.isDirectory(_)).toVector.sortBy(_.getFileName.toString)) {
       log.info("Converting month: " + monthDir)
       new MemoryWiseLogWrapper(new OldLogReader(monthDir.toFile)).addRecords(big, log)
     }

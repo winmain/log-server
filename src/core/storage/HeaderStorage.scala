@@ -1,10 +1,10 @@
 package core.storage
 import java.util.function.LongConsumer
 
+import com.koloboke.collect.map.hash.{HashIntObjMap, HashIntObjMaps, HashObjIntMap, HashObjIntMaps}
+import com.koloboke.collect.set.hash.{HashLongSet, HashLongSets}
+import com.koloboke.function.IntObjConsumer
 import core.storage.Storage._
-import net.openhft.koloboke.collect.map.hash.{HashIntObjMap, HashIntObjMaps, HashObjIntMaps}
-import net.openhft.koloboke.collect.set.hash.{HashLongSet, HashLongSets}
-import net.openhft.koloboke.function.IntObjConsumer
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -371,7 +371,7 @@ class EssentialHeaderStorageImpl(read: ReadStream) extends EssentialHeaderStorag
  */
 class TableNames(expectedSize: Int = 16) {
   val values = new mutable.ArrayBuffer[String](expectedSize)
-  val map = HashObjIntMaps.newUpdatableMap[String](expectedSize)
+  val map: HashObjIntMap[String] = HashObjIntMaps.newUpdatableMap[String](expectedSize)
 
   /** Получить id по имени таблицы. Возвращает -1, если таблица не найдена */
   def get(tableName: String): Int = map.getOrDefault(tableName, -1)

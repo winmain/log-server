@@ -63,11 +63,11 @@ class FakeDirectory(bufferSize: Int = 4096) extends Directory {
 class FakeStorageInfo(idx: Int, bufferSize: Int = 4096) extends StorageInfo {
   var gzipped: Boolean = false
 
-  val recordBuf = ByteBuffer.allocate(bufferSize)
+  val recordBuf: ByteBuffer = ByteBuffer.allocate(bufferSize)
   recordBuf.limit(0)
-  val headerBuf = ByteBuffer.allocate(bufferSize)
+  val headerBuf: ByteBuffer = ByteBuffer.allocate(bufferSize)
   headerBuf.limit(0)
-  val hashBuf = ByteBuffer.allocate(bufferSize)
+  val hashBuf: ByteBuffer = ByteBuffer.allocate(bufferSize)
   hashBuf.limit(0)
 
   override def recordStoragePath: Path = sys.error("Inapplicable")
@@ -86,12 +86,13 @@ class FakeStorageInfo(idx: Int, bufferSize: Int = 4096) extends StorageInfo {
 // ------------------------------- Real directory -------------------------------
 
 class RealDirectory(basePath: Path) extends Directory {
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
+
   Files.createDirectories(basePath)
 
   private val recordStoragePaths: mutable.Buffer[Path] = {
     val dirStream = Files.newDirectoryStream(basePath)
-    try dirStream.iterator().filter {path =>
+    try dirStream.iterator().asScala.filter {path =>
       val s: String = path.toString
       s.endsWith(".record") || s.endsWith(".record.gz")
     }.toBuffer[Path]

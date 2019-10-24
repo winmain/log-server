@@ -1,7 +1,7 @@
 package core.reader
 import java.io._
 import java.nio.channels.Channels
-import java.nio.charset.StandardCharsets
+import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.{Files, Path}
 import java.util.concurrent.BlockingQueue
 import java.util.zip.GZIPInputStream
@@ -12,7 +12,7 @@ import core.storage.Storage
 import core.storage.Storage.RecordId
 import org.slf4j.Logger
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -20,7 +20,7 @@ import scala.collection.mutable.ArrayBuffer
   * Прочитать логи в новом формате, версия 1.
   */
 class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
-  val charset = StandardCharsets.UTF_8
+  val charset: Charset = StandardCharsets.UTF_8
 
   val processedSources: mutable.Buffer[Path] = new ArrayBuffer[Path]()
 
@@ -42,6 +42,7 @@ class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
       case dir if Files.isDirectory(dir) =>
         Files
           .newDirectoryStream(dir)
+          .asScala
           .toVector
           .sorted
           .foreach(doReadLogs(_, result))
