@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path}
 import java.util.concurrent.BlockingQueue
 import java.util.zip.GZIPInputStream
 
-import com.github.winmain.logserver.core.RecordId
+import com.github.winmain.logserver.core.{LogServer, RecordId}
 import com.github.winmain.logserver.db.SourceLogRecord
 import com.github.winmain.logserver.db.reader.NewLogReader.DataInputStreamOps
 import com.github.winmain.logserver.db.storage.Storage
@@ -67,7 +67,7 @@ class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
         else bufStream
       })
       val version = stream.readInt()
-      require(version == 1, "Invalid version: " + version)
+      require(version == LogServer.StorageVersion, "Invalid version: " + version)
 
       while (stream.available() > 0) {
         val tableName = readStr().intern()
