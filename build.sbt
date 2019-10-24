@@ -12,8 +12,6 @@ val commonSettings = Seq(
   scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-language:existentials"),
   javacOptions ++= Seq("-source", "1.8"),
 
-  crossPaths := false,
-
   scalaSource in Compile := baseDirectory.value / "src",
   scalaSource in Test := baseDirectory.value / "test",
   javaSource in Compile := baseDirectory.value / "src",
@@ -75,6 +73,8 @@ lazy val app = Project(
       logbackClassic
     ),
 
+    crossPaths := false,
+
     assemblyJarName in assembly := "log-server.jar",
     mainClass in assembly := Some("com.github.winmain.logserver.Cmd"),
     assemblyMergeStrategy in assembly := {
@@ -91,6 +91,6 @@ lazy val app = Project(
       art.copy(`classifier` = Some("assembly"))
     }
   )
-).dependsOn(db).aggregate(client, db)
+).dependsOn(db).aggregate(core, client, db)
 
 addArtifact(artifact in(Compile, assembly), assembly)
