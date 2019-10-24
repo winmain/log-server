@@ -1,7 +1,8 @@
 package com.github.winmain.logserver.command
 import java.nio.file.Paths
 
-import com.github.winmain.logserver.core.storage.{RealDirectory, AppendableBigStorage}
+import com.github.winmain.logserver.db.LogServerDb
+import com.github.winmain.logserver.db.storage.{AppendableBigStorage, RealDirectory}
 import org.slf4j.Logger
 
 case class ArchiveCommand() extends Command {
@@ -14,9 +15,7 @@ case class ArchiveCommand() extends Command {
 
     val dbDir = Paths.get(params(0))
 
-    val big: AppendableBigStorage = new AppendableBigStorage(new RealDirectory(dbDir))
-    big.archive()
-    big.close()
+    LogServerDb.create(dbDir, log).archive()
 
     log.info("Finished archiving")
   }

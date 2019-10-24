@@ -50,9 +50,9 @@ lazy val client = Project(
   )
 ).dependsOn(core)
 
-lazy val app = Project(
-  id = "log-server",
-  base = file("."),
+lazy val db = Project(
+  id = "log-server-db",
+  base = file("./log-server-db"),
   settings = commonSettings ++ Seq(
     libraryDependencies ++= Seq(
       jacksonDatabind,
@@ -60,9 +60,19 @@ lazy val app = Project(
       jsr305,
       kolobokeApiJdk8,
       kolobokeImplJdk8,
-      logbackClassic,
+      slf4jApi,
       specs2Core,
       specs2Mock
+    )
+  )
+).dependsOn(core)
+
+lazy val app = Project(
+  id = "log-server",
+  base = file("."),
+  settings = commonSettings ++ Seq(
+    libraryDependencies ++= Seq(
+      logbackClassic
     ),
 
     assemblyJarName in assembly := "log-server.jar",
@@ -81,6 +91,6 @@ lazy val app = Project(
       art.copy(`classifier` = Some("assembly"))
     }
   )
-).dependsOn(core).aggregate(client)
+).dependsOn(db).aggregate(client, db)
 
 addArtifact(artifact in(Compile, assembly), assembly)

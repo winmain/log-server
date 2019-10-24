@@ -2,8 +2,8 @@ package com.github.winmain.logserver.command
 
 import java.nio.file.{Files, Paths}
 
-import com.github.winmain.logserver.core.reader.{MemoryWiseLogWrapper, OldLogReader}
-import com.github.winmain.logserver.core.storage.{AppendableBigStorage, RealDirectory}
+import com.github.winmain.logserver.db.reader.{MemoryWiseLogWrapper, OldLogReader}
+import com.github.winmain.logserver.db.storage.{AppendableBigStorage, RealDirectory}
 import org.slf4j.Logger
 
 import scala.collection.JavaConverters._

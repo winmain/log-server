@@ -1,6 +1,6 @@
 package com.github.winmain.logserver
 
-import com.github.winmain.logserver.core.storage.BigStorageLocks
+import com.github.winmain.logserver.db.storage.BigStorageLocks
 
 object CmdDev {
   def main(args: Array[String]) {

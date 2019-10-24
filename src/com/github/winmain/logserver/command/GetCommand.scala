@@ -1,14 +1,12 @@
 package com.github.winmain.logserver.command
-import java.nio.file.{Files, Path, Paths}
+
+import java.nio.file.Paths
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.github.winmain.logserver.command.GetCommand.JsRecord
 import com.github.winmain.logserver.core.RecordId
-import com.github.winmain.logserver.core.storage.{ReadOnlyBigStorage, RealDirectory, Storage}
-import com.github.winmain.logserver.utils.Js
+import com.github.winmain.logserver.db.LogServerDb
+import com.github.winmain.logserver.db.utils.Js
 import org.slf4j.Logger
-
-import scala.collection.mutable.ArrayBuffer
 
 case class GetCommand() extends Command {
   override def isVerbose: Boolean = false
@@ -26,30 +24,19 @@ case class GetCommand() extends Command {
     val baseDbDir = Paths.get(params(0))
     val tableName = params(1)
     val recordId = RecordId.parse(params(2))
+    val years: Array[String] = params.drop(3)
 
-    val dbDirs: Seq[Path] =
-      if (params.length > 3) {
-        val years: Array[String] = params.drop(3)
-        years.map(baseDbDir.resolve)
-      } else Seq(baseDbDir)
+    val records =
+      if (years.nonEmpty)
+        years
+          .map(baseDbDir.resolve)
+          .map(LogServerDb.create(_, log).get(tableName, recordId))
+          .reduce(_ ++ _)
+      else
+        LogServerDb.create(baseDbDir, log).get(tableName, recordId)
 
     val mapper = Js.newMapper.configure(SerializationFeature.INDENT_OUTPUT, true)
-    var records = new ArrayBuffer[JsRecord]()
-    for (dbDir <- dbDirs) {
-      if (!Files.isDirectory(dbDir)) exitError("No database in dir " + dbDir.toAbsolutePath)
-      val big = new ReadOnlyBigStorage(new RealDirectory(dbDir))
-      if (big.storages.isEmpty) exitError("No database in dir " + dbDir.toAbsolutePath)
 
-      records ++= big.getRecords(tableName, recordId).map {r =>
-        JsRecord(timestamp = r.timestamp, tableName = r.tableName, id = r.id, data = new Predef.String(r.data, Storage.Charset))
-      }
-      big.close()
-    }
     println(mapper.writeValueAsString(records.sortBy(_.timestamp)))
   }
-}
-
-
-object GetCommand {
-  case class JsRecord(timestamp: Long, tableName: String, id: RecordId, data: String)
 }

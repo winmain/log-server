@@ -1,8 +1,7 @@
 package com.github.winmain.logserver.command
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Path, Paths}
 
-import com.github.winmain.logserver.core.reader.{MemoryWiseLogWrapper, NewLogReader}
-import com.github.winmain.logserver.core.storage.{AppendableBigStorage, RealDirectory}
+import com.github.winmain.logserver.db.LogServerDb
 import org.slf4j.Logger
 
 case class UpdateCommand() extends Command {
@@ -18,17 +17,7 @@ case class UpdateCommand() extends Command {
     val dbDir = Paths.get(params(0))
     val updatePaths: Vector[Path] = params.drop(1).map(Paths.get(_))(collection.breakOut)
 
-    val big: AppendableBigStorage = new AppendableBigStorage(new RealDirectory(dbDir))
-    val logReader: NewLogReader = new NewLogReader(updatePaths, log)
-    try {
-      new MemoryWiseLogWrapper(logReader).addRecords(big, log)
-    } finally {
-      log.info("Closing BigStorage")
-      big.close()
-
-      log.info("Removing processed update files")
-      logReader.processedSources.foreach(Files.delete)
-    }
+    LogServerDb.create(dbDir, log).update(updatePaths)
 
     log.info("Finished update")
   }
