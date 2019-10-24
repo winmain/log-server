@@ -35,13 +35,13 @@ class LogWriterClient(writeDir: Path,
     else "current")
 
   def append(normalizedTableName: String, timestamp: Long, log: String): Unit =
-    safeAppend(normalizedTableName, RecordId.empty, timestamp, log)
+    append(normalizedTableName, RecordId.empty, timestamp, log)
 
   def append(normalizedTableName: String, id: Int, timestamp: Long, log: String): Unit =
-    safeAppend(normalizedTableName, RecordId(id), timestamp, log)
+    append(normalizedTableName, RecordId(id), timestamp, log)
 
   def append(normalizedTableName: String, id: String, timestamp: Long, log: String): Unit =
-    safeAppend(normalizedTableName, RecordId(id), timestamp, log)
+    append(normalizedTableName, RecordId(id), timestamp, log)
 
   def close(): Unit = {
     if (fileStream != null) {
@@ -52,13 +52,6 @@ class LogWriterClient(writeDir: Path,
   }
 
   // internal
-
-  private def safeAppend(normalizedTableName: String, id: RecordId, timestamp: Long, log: String): Unit =
-    try {
-      append(normalizedTableName, id, timestamp, log)
-    } catch {
-      case ex: Throwable => logger.error("Cannot append to log", ex)
-    }
 
   private def append(normalizedTableName: String, id: RecordId, timestamp: Long, log: String): Unit = {
     def writeStr(s: String): Unit = {
