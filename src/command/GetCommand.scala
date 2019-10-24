@@ -3,6 +3,7 @@ import java.nio.file.{Files, Path, Paths}
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import command.GetCommand.JsRecord
+import core.storage.Storage.RecordId
 import core.storage.{ReadOnlyBigStorage, RealDirectory, Storage}
 import org.slf4j.Logger
 import utils.Js
@@ -24,7 +25,7 @@ case class GetCommand() extends Command {
 
     val baseDbDir = Paths.get(params(0))
     val tableName = params(1)
-    val recordId = params(2).toInt
+    val recordId = RecordId.parse(params(2))
 
     val dbDirs: Seq[Path] =
       if (params.length > 3) {
@@ -50,5 +51,5 @@ case class GetCommand() extends Command {
 
 
 object GetCommand {
-  case class JsRecord(timestamp: Long, tableName: String, id: Int, data: String)
+  case class JsRecord(timestamp: Long, tableName: String, id: RecordId, data: String)
 }

@@ -4,6 +4,13 @@ import java.nio.file.{Files, Path}
 import java.nio.{BufferUnderflowException, ByteBuffer}
 import java.util.zip.GZIPInputStream
 
+import core.storage.Storage.{
+  EmptyRecordId,
+  IntRecordId,
+  RecordId,
+  StringRecordId
+}
+
 // ------------------------------- ReadStream -------------------------------
 
 trait ReadStream {
@@ -11,6 +18,7 @@ trait ReadStream {
   def skip(n: Long)
   def available: Boolean
   def close()
+
   /** Вернуть размер всего файла. Если размер недоступен, вернётся None (для gzip файлов). */
   def maybeLength: Option[Long]
 
@@ -22,7 +30,30 @@ trait ReadStream {
   def get(dst: ByteBuffer)
 }
 
-class ReadDataStream(s: DataInputStream, val maybeLength: Option[Long]) extends ReadStream {
+object ReadStream {
+
+  implicit class Ops(val readStream: ReadStream) extends AnyVal {
+    def getRecordId: RecordId =
+      readStream.getByte match {
+        case RecordId.StringRecordMarker =>
+          val size = readStream.getInt
+          val bytes = new Array[Byte](size)
+          readStream.get(bytes)
+
+          RecordId.str(bytes)
+
+        case RecordId.EmptyIdMarker =>
+          RecordId.empty
+
+        case RecordId.IntIdMarker =>
+          RecordId(readStream.getInt)
+      }
+  }
+
+}
+
+class ReadDataStream(s: DataInputStream, val maybeLength: Option[Long])
+    extends ReadStream {
   private var p = 0L
   override def pos: Long = p
   override def available: Boolean = s.available() > 0
@@ -39,8 +70,17 @@ class ReadDataStream(s: DataInputStream, val maybeLength: Option[Long]) extends 
   override def getShort: Short = { p += 2; s.readShort() }
   override def getInt: Int = { p += 4; s.readInt() }
   override def getLong: Long = { p += 8; s.readLong() }
-  override def get(dst: Array[Byte]): Unit = { p += dst.length; s.readFully(dst) }
-  override def get(dst: ByteBuffer): Unit = { p += dst.remaining(); s.readFully(dst.array(), dst.arrayOffset() + dst.position(), dst.remaining()) }
+  override def get(dst: Array[Byte]): Unit = {
+    p += dst.length; s.readFully(dst)
+  }
+  override def get(dst: ByteBuffer): Unit = {
+    p += dst.remaining();
+    s.readFully(
+      dst.array(),
+      dst.arrayOffset() + dst.position(),
+      dst.remaining()
+    )
+  }
 }
 
 object EmptyDataStream extends ReadStream {
@@ -63,21 +103,30 @@ object ReadDataStream {
     if (Files.exists(path)) {
       val raf: RandomAccessFile = new RandomAccessFile(path.toFile, "r")
       if (path.getFileName.toString.endsWith(".gz"))
-        new ReadDataStream(new DataInputStream(new GZIPInputStream(new FileInputStream(raf.getFD), bufferSize)), None)
+        new ReadDataStream(
+          new DataInputStream(
+            new GZIPInputStream(new FileInputStream(raf.getFD), bufferSize)
+          ),
+          None
+        )
       else
-        new ReadDataStream(new DataInputStream(new BufferedInputStream(new FileInputStream(raf.getFD), bufferSize)), Some(raf.length()))
-    }
-    else EmptyDataStream
+        new ReadDataStream(
+          new DataInputStream(
+            new BufferedInputStream(new FileInputStream(raf.getFD), bufferSize)
+          ),
+          Some(raf.length())
+        )
+    } else EmptyDataStream
   }
 }
 
 /**
- * Matcher для исключений конца файла как для реального файла, так и для буфера
- */
+  * Matcher для исключений конца файла как для реального файла, так и для буфера
+  */
 object IoDataStreamException {
   def apply(t: Throwable): Boolean = t match {
     case _: IOException | _: BufferUnderflowException => true
-    case _ => false
+    case _                                            => false
   }
   def unapply(t: Throwable): Option[Throwable] = if (apply(t)) Some(t) else None
 }
@@ -96,6 +145,27 @@ trait ReadWrite extends ReadStream {
   def putLong(v: Long)
   def put(src: Array[Byte])
   def put(src: ByteBuffer)
+}
+
+object ReadWrite {
+
+  implicit class Ops(val readWrite: ReadWrite) extends AnyVal {
+    def putRecordId(recordId: RecordId): Unit =
+      recordId match {
+        case i: IntRecordId =>
+          readWrite.putByte(RecordId.IntIdMarker)
+          readWrite.putInt(i.value)
+
+        case s: StringRecordId =>
+          readWrite.putByte(RecordId.StringRecordMarker)
+          readWrite.putInt(s.value.length)
+          readWrite.put(s.value)
+
+        case EmptyRecordId =>
+          readWrite.putByte(RecordId.EmptyIdMarker)
+      }
+  }
+
 }
 
 class ReadWriteFile(file: File, mode: String = "rw") extends ReadWrite {
@@ -132,17 +202,20 @@ class ReadWriteFile(file: File, mode: String = "rw") extends ReadWrite {
 // открыть не gzip файл, а новосозданную копию.
 
 /**
- * Эмуляция чтения/записи в файл используя буфер #buf.
- *
- * @param buf Буфер для чтения и записи. [[buf.limit()]] задаёт виртуальный размер файла,
- *            который может увеличиваться при записи в него.
- * @param emptyBuffer Создать пустой буфер? У такого буфера лимит сброшен на 0?
- */
-class ReadWriteBuffer(buf: ByteBuffer, emptyBuffer: Boolean = false) extends ReadWrite {
+  * Эмуляция чтения/записи в файл используя буфер #buf.
+  *
+  * @param buf Буфер для чтения и записи. [[buf.limit()]] задаёт виртуальный размер файла,
+  *            который может увеличиваться при записи в него.
+  * @param emptyBuffer Создать пустой буфер? У такого буфера лимит сброшен на 0?
+  */
+class ReadWriteBuffer(buf: ByteBuffer, emptyBuffer: Boolean = false)
+    extends ReadWrite {
   buf.rewind()
   if (emptyBuffer) buf.limit(0)
   override def pos: Long = buf.position()
-  override def skip(n: Long): Unit = { require(n >= 0L); buf.position(buf.position() + n.toInt) }
+  override def skip(n: Long): Unit = {
+    require(n >= 0L); buf.position(buf.position() + n.toInt)
+  }
   override def seek(n: Long): Unit = buf.position(n.toInt)
   override def available: Boolean = buf.hasRemaining
   override def close(): Unit = {}
@@ -168,5 +241,6 @@ class ReadWriteBuffer(buf: ByteBuffer, emptyBuffer: Boolean = false) extends Rea
   override def putInt(v: Int): Unit = updateLimit(4).putInt(v)
   override def putLong(v: Long): Unit = updateLimit(8).putLong(v)
   override def put(src: Array[Byte]): Unit = updateLimit(src.length).put(src)
-  override def put(src: ByteBuffer): Unit = updateLimit(src.remaining()).put(src)
+  override def put(src: ByteBuffer): Unit =
+    updateLimit(src.remaining()).put(src)
 }

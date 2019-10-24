@@ -3,6 +3,7 @@ import java.util.concurrent.{LinkedBlockingQueue, SynchronousQueue, TimeUnit}
 
 import core.SourceLogRecord
 import core.storage.AppendableBigStorage
+import core.storage.Storage.{EmptyRecordId, RecordId}
 import org.slf4j.Logger
 
 import scala.collection.mutable
@@ -80,7 +81,7 @@ class MemoryWiseLogWrapper(reader: LogReader, maxMemory: Long = 10000000L, buffe
     override def tableName: String = null
     override def occupiedMemory: Int = 0
     override def logBytesUTF8: Array[Byte] = null
-    override def id: Option[Int] = null
+    override def id: RecordId = RecordId.empty
     override def timestamp: Long = 0L
   }
 

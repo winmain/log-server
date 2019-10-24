@@ -121,13 +121,13 @@ abstract class RecordStorage(opts: StorageOpts) {
    */
   protected def writeRecord(record: Record, rw: ReadWrite): Boolean = {
     val tableNameBytes: Array[Byte] = record.tableName.getBytes(Charset)
-    val size: Long = 8L + 4 + tableNameBytes.length + 4 + 4 + record.data.length
+    val size: Long = 8L + 4 + tableNameBytes.length + record.id.length + 4 + record.data.length
     if (endFileOffset + size > opts.maxOffset) false
     else {
       val pos0 = rw.pos
       rw.putLong(record.timestamp)
       writeBytes(rw, tableNameBytes)
-      rw.putInt(record.id)
+      rw.putRecordId(record.id)
       writeBytes(rw, record.data)
       val pos = rw.pos
       rw.truncate(pos)
@@ -147,8 +147,9 @@ abstract class RecordStorage(opts: StorageOpts) {
   protected def readRecord(read: ReadStream): Record = {
     val timestamp: Long = read.getLong
     val tableNameBytes = readBytes(read)
-    val id = read.getInt
+    val id = read.getRecordId
     val dataBytes = readBytes(read)
+
     Record(timestamp, new String(tableNameBytes, Charset), id, dataBytes)
   }
 

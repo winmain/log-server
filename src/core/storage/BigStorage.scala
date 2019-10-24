@@ -162,7 +162,7 @@ class ReadOnlyBigStorage(dir: Directory,
                          log: Logger = LoggerFactory.getLogger(classOf[BigStorage])) extends BigStorage(dir, opts, log) {
   val storages: Vector[Storage] = dir.infos.map(new ReadOnlyStorage(_))(collection.breakOut)
 
-  def getRecords(tableName: String, id: Int): Vector[Record] = {
+  def getRecords(tableName: String, id: RecordId): Vector[Record] = {
     requireLocked()
     val result = Vector.newBuilder[Record]
     for (storage <- storages) {

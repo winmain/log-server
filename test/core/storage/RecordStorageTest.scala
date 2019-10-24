@@ -11,16 +11,16 @@ import scala.collection.mutable.ArrayBuffer
 class RecordStorageTest extends Specification with Mockito {
   val opts: StorageOpts = new StorageOpts
 
-  val rec1: Record = Record(123L, "table", 3, "abcdef".getBytes)
-  val rec2: Record = Record(523L, "qweqwe", 0, "ppp".getBytes)
-  val rec3: Record = Record(80L, "ros_bill.bill", 90, "some bytes".getBytes)
+  val rec1: Record = Record(123L, "table", RecordId(3), "abcdef".getBytes)
+  val rec2: Record = Record(523L, "qweqwe", RecordId(0), "ppp".getBytes)
+  val rec3: Record = Record(80L, "ros_bill.bill", RecordId(90), "some bytes".getBytes)
 
   "one record" in {
     val buf = ByteBuffer.allocate(8192)
     val rw = new ReadWriteBuffer(buf, emptyBuffer = true)
 
     // step1: write one record to storage
-    val totalBytes = opts.recordStorageHeaderSize + 8 + 4 + 5 + 4 + 4 + 6
+    val totalBytes = opts.recordStorageHeaderSize + 8 + 5 + 5 + 4 + 4 + 6
     var recOffset = 0
     locally {
       val ws: AppendableRecordStorage = new AppendableRecordStorage(rw)
@@ -56,9 +56,9 @@ class RecordStorageTest extends Specification with Mockito {
 
     // step1: write 3 records to storage
     val totalBytes =
-      opts.recordStorageHeaderSize + 8 + 4 + 5 + 4 + 4 + 6 +
-        8 + 4 + 6 + 4 + 4 + 3 +
-        8 + 4 + 13 + 4 + 4 + 10
+      opts.recordStorageHeaderSize + 8 + 5 + 5 + 4 + 4 + 6 +
+        8 + 5 + 6 + 4 + 4 + 3 +
+        8 + 5 + 13 + 4 + 4 + 10
     val recOffsets = Array.ofDim[Int](3)
     locally {
       val log = mock[Logger]
@@ -68,7 +68,7 @@ class RecordStorageTest extends Specification with Mockito {
       recOffsets(0) = ws.addRecord(rec1).get
       recOffsets(1) = ws.addRecord(rec2).get
       recOffsets(2) = ws.addRecord(rec3).get
-      recOffsets === Array(64, 95, 124)
+      recOffsets === Array(64, 96, 126)
       val pos = rw.pos
       ws.close()
 
@@ -101,9 +101,9 @@ class RecordStorageTest extends Specification with Mockito {
 
     // step1: write 3 records to storage, not closing it
     val totalBytes =
-      opts.recordStorageHeaderSize + 8 + 4 + 5 + 4 + 4 + 6 +
-        8 + 4 + 6 + 4 + 4 + 3 +
-        8 + 4 + 13 + 4 + 4 + 10
+      opts.recordStorageHeaderSize + 8 + 5 + 5 + 4 + 4 + 6 +
+        8 + 5 + 6 + 4 + 4 + 3 +
+        8 + 5 + 13 + 4 + 4 + 10
     val recOffsets = Array.ofDim[Int](3)
     locally {
       val log = mock[Logger]
@@ -113,7 +113,7 @@ class RecordStorageTest extends Specification with Mockito {
       recOffsets(0) = ws.addRecord(rec1).get
       recOffsets(1) = ws.addRecord(rec2).get
       recOffsets(2) = ws.addRecord(rec3).get
-      recOffsets === Array(64, 95, 124)
+      recOffsets === Array(64, 96, 126)
       val pos = rw.pos
 
       rw.truncate(pos)
@@ -141,9 +141,9 @@ class RecordStorageTest extends Specification with Mockito {
       val ws: AppendableRecordStorage = new AppendableRecordStorage(rw, log = log, onRecoverReceiver = recoverReceiver)
       there was one(log).warn(anyString)
       recovered === Vector(
-        Header(123L, 64, rec1.calcHash, "table", 3),
-        Header(523L, 95, rec2.calcHash, "qweqwe", 0),
-        Header(80L, 124, rec3.calcHash, "ros_bill.bill", 90))
+        Header(123L, 64, rec1.calcHash, "table", RecordId(3)),
+        Header(523L, 96, rec2.calcHash, "qweqwe", RecordId(0)),
+        Header(80L, 126, rec3.calcHash, "ros_bill.bill", RecordId(90)))
       ws.readRecord(recOffsets(0)) === rec1
       ws.readRecord(recOffsets(1)) === rec2
       ws.readRecord(recOffsets(2)) === rec3

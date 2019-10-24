@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.BlockingQueue
 import java.util.zip.GZIPInputStream
 
+import core.storage.Storage.RecordId
 import core.{SourceLogRecord, SourceUtils}
 import utils.Dates.dateWrapper
 import utils.InputStreamSplitter
@@ -22,11 +23,11 @@ class OldLogReader(baseDir: File) extends LogReader {
   class Record(val tableName: String, log: String, logFile: File) extends SourceLogRecord {
     override val logBytesUTF8: Array[Byte] = log.getBytes(StandardCharsets.UTF_8)
 
-    val id: Option[Int] = {
+    val id: RecordId = {
       val nlIdx = log.indexOf('\n')
       require(nlIdx != -1, "Error log in " + logFile + "\nLog: " + log)
       val id = OldLogReader.idExtractor.findFirstMatchIn(log.substring(0, nlIdx)).map(_.group(1).toInt)
-      id
+      id.map(RecordId(_)).getOrElse(RecordId.empty)
     }
 
     val dateTime: LocalDateTime = LocalDateTime.parse(log.substring(5, 24), OldLogReader.dateFormat)

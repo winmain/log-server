@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
+import core.storage.Storage.RecordId
 import org.slf4j.LoggerFactory
 
 import scala.annotation.tailrec
@@ -49,9 +50,10 @@ class LogWriterClient(writeDir: File,
       // write data
       writeStr(normalizedTableName)
       maybeId match {
-        case None => fileStream.writeByte(0)
+        case None =>
+          fileStream.writeByte(RecordId.EmptyIdMarker)
         case Some(id) =>
-          fileStream.writeByte(1)
+          fileStream.writeByte(RecordId.IntIdMarker)
           fileStream.writeInt(id)
       }
       fileStream.writeLong(timestamp)

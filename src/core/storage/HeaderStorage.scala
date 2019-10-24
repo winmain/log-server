@@ -85,7 +85,7 @@ abstract class HeaderStorage extends EssentialHeaderStorage {
   /**
    * Найти значение table+id, по сути это простейшая упаковка tableId и id в одно Int-значение.
    */
-  def calcTablePlusId(tableId: Int, id: Int): Int = Integer.reverse(tableId) ^ id
+  def calcTablePlusId(tableId: Int, id: RecordId): Int = Integer.reverse(tableId) ^ id.hash
 
   /**
    * Есть ли запись с таким хешем?
@@ -104,7 +104,7 @@ abstract class HeaderStorage extends EssentialHeaderStorage {
    * Есть ли запись с таким хешем?
    * Этот метод работает только если хеши были загружены. Иначе, он бросает exception.
    */
-  def contains(tableName: String, id: Int, hash: Int): Boolean = {
+  def contains(tableName: String, id: RecordId, hash: Int): Boolean = {
     tableNames.get(tableName) match {
       case -1 => false
       case tableId => contains(calcTablePlusId(tableId, id), hash)
@@ -147,7 +147,7 @@ abstract class HeaderStorage extends EssentialHeaderStorage {
   /**
    * Найти все оффсеты для заданной записи.
    */
-  def getOffsets(tableName: String, id: Int): Vector[Int] = {
+  def getOffsets(tableName: String, id: RecordId): Vector[Int] = {
     tableNames.get(tableName) match {
       case -1 => Vector.empty
       case tableId =>

@@ -1,9 +1,10 @@
 package core
 import core.storage.Storage
+import core.storage.Storage.RecordId
 
 trait SourceLogRecord {
   def tableName: String
-  def id: Option[Int]
+  def id: RecordId
   def logBytesUTF8: Array[Byte]
   def timestamp: Long
 
@@ -15,11 +16,11 @@ trait SourceLogRecord {
     else tn
   }
 
-  def key: String = id.fold(normalizedTableName)(normalizedTableName + "/" + _)
-  def idKey: String = id.fold("-")(_.toString)
+  def key: String = normalizedTableName + "/" + id
+  def idKey: String = id.toString
 
   def toStorageRecord: Storage.Record =
-    Storage.Record(timestamp, tableName, id.getOrElse(0), logBytesUTF8)
+    Storage.Record(timestamp, tableName, id, logBytesUTF8)
 
   def calcHash: Int = Storage.calcHash(logBytesUTF8, timestamp)
 }
