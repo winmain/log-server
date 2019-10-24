@@ -1,9 +1,8 @@
 package com.github.winmain.logserver.core.reader
 import java.util.concurrent.{LinkedBlockingQueue, SynchronousQueue, TimeUnit}
 
-import com.github.winmain.logserver.core.SourceLogRecord
 import com.github.winmain.logserver.core.storage.AppendableBigStorage
-import com.github.winmain.logserver.core.storage.Storage.{EmptyRecordId, RecordId}
+import com.github.winmain.logserver.core.{RecordId, SourceLogRecord}
 import org.slf4j.Logger
 
 import scala.collection.mutable

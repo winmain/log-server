@@ -1,7 +1,8 @@
 package com.github.winmain.logserver.core.storage
 import java.nio.ByteBuffer
 
-import com.github.winmain.logserver.core.storage.Storage.{Header, RecordId}
+import com.github.winmain.logserver.core.RecordId
+import com.github.winmain.logserver.core.storage.Storage.Header
 import org.specs2.mutable.Specification
 
 class HeaderStorageTest extends Specification {

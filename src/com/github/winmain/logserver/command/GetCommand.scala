@@ -3,10 +3,10 @@ import java.nio.file.{Files, Path, Paths}
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.github.winmain.logserver.command.GetCommand.JsRecord
-import com.github.winmain.logserver.core.storage.Storage.RecordId
+import com.github.winmain.logserver.core.RecordId
 import com.github.winmain.logserver.core.storage.{ReadOnlyBigStorage, RealDirectory, Storage}
-import org.slf4j.Logger
 import com.github.winmain.logserver.utils.Js
+import org.slf4j.Logger
 
 import scala.collection.mutable.ArrayBuffer
 

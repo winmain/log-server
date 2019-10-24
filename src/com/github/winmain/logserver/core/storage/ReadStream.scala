@@ -4,12 +4,8 @@ import java.nio.file.{Files, Path}
 import java.nio.{BufferUnderflowException, ByteBuffer}
 import java.util.zip.GZIPInputStream
 
-import com.github.winmain.logserver.core.storage.Storage.{
-  EmptyRecordId,
-  IntRecordId,
-  RecordId,
-  StringRecordId
-}
+import com.github.winmain.logserver.core.RecordId
+import com.github.winmain.logserver.core.RecordId.{EmptyRecordId, IntRecordId, StringRecordId}
 
 // ------------------------------- ReadStream -------------------------------
 
@@ -35,7 +31,7 @@ object ReadStream {
   implicit class Ops(val readStream: ReadStream) extends AnyVal {
     def getRecordId: RecordId =
       readStream.getByte match {
-        case RecordId.StringRecordMarker =>
+        case RecordId.StringIdMarker =>
           val size = readStream.getInt
           val bytes = new Array[Byte](size)
           readStream.get(bytes)
@@ -157,7 +153,7 @@ object ReadWrite {
           readWrite.putInt(i.value)
 
         case s: StringRecordId =>
-          readWrite.putByte(RecordId.StringRecordMarker)
+          readWrite.putByte(RecordId.StringIdMarker)
           readWrite.putInt(s.value.length)
           readWrite.put(s.value)
 

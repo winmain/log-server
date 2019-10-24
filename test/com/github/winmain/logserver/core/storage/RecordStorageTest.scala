@@ -1,6 +1,7 @@
 package com.github.winmain.logserver.core.storage
 import java.nio.ByteBuffer
 
+import com.github.winmain.logserver.core.RecordId
 import com.github.winmain.logserver.core.storage.Storage._
 import org.slf4j.Logger
 import org.specs2.mock.Mockito
@@ -62,8 +63,8 @@ class RecordStorageTest extends Specification with Mockito {
     val recOffsets = Array.ofDim[Int](3)
     locally {
       val log = mock[Logger]
-      log.warn(any) throws new RuntimeException("Must not call log.warn")
-      log.warn(any, any[Throwable]) throws new RuntimeException("Must not call log.warn")
+      log.warn(any()) throws new RuntimeException("Must not call log.warn")
+      log.warn(any(), any[Throwable]()) throws new RuntimeException("Must not call log.warn")
       val ws: AppendableRecordStorage = new AppendableRecordStorage(rw, log = log)
       recOffsets(0) = ws.addRecord(rec1).get
       recOffsets(1) = ws.addRecord(rec2).get
@@ -107,8 +108,8 @@ class RecordStorageTest extends Specification with Mockito {
     val recOffsets = Array.ofDim[Int](3)
     locally {
       val log = mock[Logger]
-      log.warn(any) throws new RuntimeException("Must not call log.warn")
-      log.warn(any, any[Throwable]) throws new RuntimeException("Must not call log.warn")
+      log.warn(any()) throws new RuntimeException("Must not call log.warn")
+      log.warn(any(), any[Throwable]()) throws new RuntimeException("Must not call log.warn")
       val ws: AppendableRecordStorage = new AppendableRecordStorage(rw, log = log)
       recOffsets(0) = ws.addRecord(rec1).get
       recOffsets(1) = ws.addRecord(rec2).get
@@ -172,7 +173,7 @@ class RecordStorageTest extends Specification with Mockito {
       ws.addRecord(rec3)
       ws.close()
       no(log).warn(anyString)
-      no(log).warn(anyString, any[Throwable])
+      no(log).warn(anyString, any[Throwable]())
     }
 
     // step2: crush last record & try to recover
@@ -186,7 +187,7 @@ class RecordStorageTest extends Specification with Mockito {
       hs.contains(rec2.tableName, rec2.id, rec2.calcHash) === true
       hs.contains(rec3.tableName, rec3.id, rec3.calcHash) === false
       no(log).warn(anyString)
-      no(log).warn(anyString, any[Throwable])
+      no(log).warn(anyString, any[Throwable]())
     }
     success
   }

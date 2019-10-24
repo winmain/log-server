@@ -7,10 +7,12 @@ object Dependecies {
     val jsr305 = "3.0.2"
     val koloboke = "1.0.0"
     val logback = "1.2.3"
+    val slf4j = "1.7.25"
     val specs2 = "4.8.0"
   }
 
   // JSON support
+  val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % Version.jackson
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % Version.jackson
   val jacksonModuleScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Version.jackson exclude("com.google.guava", "guava")
 
@@ -23,6 +25,8 @@ object Dependecies {
 
   // Logging
   val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logback
+
+  val slf4jApi = "org.slf4j" % "slf4j-api" % Version.slf4j
 
   // Testing
   val specs2Core = "org.specs2" %% "specs2-core" % Version.specs2 % Test

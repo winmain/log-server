@@ -6,10 +6,9 @@ import java.nio.file.{Files, Path}
 import java.util.concurrent.BlockingQueue
 import java.util.zip.GZIPInputStream
 
-import com.github.winmain.logserver.core.SourceLogRecord
+import com.github.winmain.logserver.core.{RecordId, SourceLogRecord}
 import com.github.winmain.logserver.core.reader.NewLogReader.DataInputStreamOps
 import com.github.winmain.logserver.core.storage.Storage
-import com.github.winmain.logserver.core.storage.Storage.RecordId
 import org.slf4j.Logger
 
 import scala.collection.JavaConverters._
@@ -124,7 +123,7 @@ object NewLogReader {
 
     def readRecordId(): RecordId = {
       in.readByte() match {
-        case RecordId.StringRecordMarker =>
+        case RecordId.StringIdMarker =>
           val size = in.readInt()
           val bytes = new Array[Byte](size)
           in.read(bytes)

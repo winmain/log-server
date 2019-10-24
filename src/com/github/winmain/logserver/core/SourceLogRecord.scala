@@ -1,6 +1,5 @@
 package com.github.winmain.logserver.core
 import com.github.winmain.logserver.core.storage.Storage
-import com.github.winmain.logserver.core.storage.Storage.RecordId
 
 trait SourceLogRecord {
   def tableName: String

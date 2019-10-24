@@ -1,10 +1,11 @@
 package com.github.winmain.logserver.core.storage
 import java.util.function.LongConsumer
 
+import com.github.winmain.logserver.core.RecordId
+import com.github.winmain.logserver.core.storage.Storage._
 import com.koloboke.collect.map.hash.{HashIntObjMap, HashIntObjMaps, HashObjIntMap, HashObjIntMaps}
 import com.koloboke.collect.set.hash.{HashLongSet, HashLongSets}
 import com.koloboke.function.IntObjConsumer
-import com.github.winmain.logserver.core.storage.Storage._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

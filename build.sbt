@@ -34,6 +34,22 @@ val commonSettings = Seq(
   sources in(Compile, doc) := Nil
 )
 
+lazy val core = Project(
+  id = "log-server-core",
+  base = file("./log-server-core"),
+  settings = commonSettings ++ Seq(
+    libraryDependencies ++= Seq(jacksonAnnotations)
+  )
+)
+
+lazy val client = Project(
+  id = "log-server-client",
+  base = file("./log-server-client"),
+  settings = commonSettings ++ Seq(
+    libraryDependencies ++= Seq(slf4jApi)
+  )
+).dependsOn(core)
+
 lazy val app = Project(
   id = "log-server",
   base = file("."),
@@ -65,6 +81,6 @@ lazy val app = Project(
       art.copy(`classifier` = Some("assembly"))
     }
   )
-)
+).dependsOn(core).aggregate(client)
 
 addArtifact(artifact in(Compile, assembly), assembly)

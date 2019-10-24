@@ -1,5 +1,6 @@
 package com.github.winmain.logserver.core.storage
-import com.github.winmain.logserver.core.storage.Storage.{Record, RecordId}
+import com.github.winmain.logserver.core.RecordId
+import com.github.winmain.logserver.core.storage.Storage.Record
 import org.slf4j.Logger
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -30,7 +31,7 @@ class BigStorageTest extends Specification with Mockito {
     abs.addRecord(rec1) === false
     abs.close()
     no(log).warn(anyString)
-    no(log).warn(anyString, any[Throwable])
+    no(log).warn(anyString, any[Throwable]())
 
     dir.infos.length === 1
     val info: FakeStorageInfo = dir.infos.head
@@ -82,7 +83,7 @@ class BigStorageTest extends Specification with Mockito {
       dir.infos.length === 2
       abs.close()
       no(log).warn(anyString)
-      no(log).warn(anyString, any[Throwable])
+      no(log).warn(anyString, any[Throwable]())
 
       var info: FakeStorageInfo = dir.infos(0)
       info.recordBuf.limit() must be > 10
@@ -105,7 +106,7 @@ class BigStorageTest extends Specification with Mockito {
       dir.infos.length === 3
       abs.close()
       no(log).warn(anyString)
-      no(log).warn(anyString, any[Throwable])
+      no(log).warn(anyString, any[Throwable]())
     }
 
     // step3: open & check BigStorage
@@ -116,7 +117,7 @@ class BigStorageTest extends Specification with Mockito {
       rbs.getRecords("account", RecordId(1)) === Nil
       rbs.close()
       no(log).warn(anyString)
-      no(log).warn(anyString, any[Throwable])
+      no(log).warn(anyString, any[Throwable]())
     }
     success
   }
@@ -135,7 +136,7 @@ class BigStorageTest extends Specification with Mockito {
       abs.addRecord(rec2) === true
       abs.close()
       no(log).warn(anyString)
-      no(log).warn(anyString, any[Throwable])
+      no(log).warn(anyString, any[Throwable]())
     }
 
     def checkReadOnlyBigStorage(): Unit = {
@@ -155,7 +156,7 @@ class BigStorageTest extends Specification with Mockito {
     dir.infos(0).hashBuf.limit(0)
     checkReadOnlyBigStorage()
     no(log).warn(anyString)
-    no(log).warn(anyString, any[Throwable])
+    no(log).warn(anyString, any[Throwable]())
   }
 
   "AppendableBigStorage delete headers" in new DeleteContext {
@@ -225,7 +226,7 @@ class BigStorageTest extends Specification with Mockito {
       abs.unlock()
     }
     no(log).warn(anyString)
-    no(log).warn(anyString, any[Throwable])
+    no(log).warn(anyString, any[Throwable]())
     // step3: try to re-add record
     // Здесь мы получаем recordStorage с 3 запиями, и header/hash storage с 2 записями.
     locally {

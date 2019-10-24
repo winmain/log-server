@@ -7,8 +7,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.BlockingQueue
 import java.util.zip.GZIPInputStream
 
-import com.github.winmain.logserver.core.storage.Storage.RecordId
-import com.github.winmain.logserver.core.{SourceLogRecord, SourceUtils}
+import com.github.winmain.logserver.core.{RecordId, SourceLogRecord, SourceUtils}
 import com.github.winmain.logserver.utils.Dates.dateWrapper
 import com.github.winmain.logserver.utils.InputStreamSplitter
 

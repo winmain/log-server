@@ -1,7 +1,7 @@
 package com.github.winmain.logserver.core.storage
-import javax.annotation.concurrent.NotThreadSafe
-
+import com.github.winmain.logserver.core.RecordId
 import com.github.winmain.logserver.core.storage.Storage._
+import javax.annotation.concurrent.NotThreadSafe
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable
