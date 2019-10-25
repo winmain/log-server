@@ -4,6 +4,7 @@ object Dependecies {
 
   private object Version {
     val jackson = "2.10.0"
+    val jimfs = "1.1"
     val jsr305 = "3.0.2"
     val koloboke = "1.0.0"
     val logback = "1.2.3"
@@ -16,6 +17,9 @@ object Dependecies {
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % Version.jackson
   val jacksonModuleScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Version.jackson exclude("com.google.guava", "guava")
 
+  // In-memory filesystem
+  val jimfs = "com.google.jimfs" % "jimfs" % Version.jimfs % Test
+
   // Nullable annotations
   val jsr305 = "com.google.code.findbugs" % "jsr305" % Version.jsr305
 
@@ -27,6 +31,7 @@ object Dependecies {
   val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logback
 
   val slf4jApi = "org.slf4j" % "slf4j-api" % Version.slf4j
+  val slf4jNop = "org.slf4j" % "slf4j-nop" % Version.slf4j % Test
 
   // Testing
   val specs2Core = "org.specs2" %% "specs2-core" % Version.specs2 % Test

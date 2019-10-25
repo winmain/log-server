@@ -1,6 +1,6 @@
 package com.github.winmain.logserver.db.utils
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.zip.GZIPOutputStream
 
 object FileUtils {
@@ -19,7 +19,7 @@ object FileUtils {
    * Сжать файл #path и вернуть новое имя сжатого файла.
    */
   def gzipFile(path: Path): Path = {
-    val gzPath = Paths.get(path.toString + ".gz")
+    val gzPath = path.resolveSibling(path.getFileName + ".gz")
     val output: GZIPOutputStream = new GZIPOutputStream(Files.newOutputStream(gzPath), 8192)
     Files.copy(path, output)
     output.close()

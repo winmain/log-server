@@ -191,9 +191,9 @@ class RealStorageInfoRW(gotRecordSP: Path, bufferSize: Int = 4096) extends Stora
   override def headerReadStream: ReadStream = ReadDataStream.fromPath(headerSP, bufferSize)
   override def hashReadStream: ReadStream = ReadDataStream.fromPath(hashSP, bufferSize)
 
-  override def recordReadWrite: ReadWrite = new ReadWriteFile(recordSP.toFile, "rw")
-  override def headerReadWrite: ReadWrite = new ReadWriteFile(headerSP.toFile, "rw")
-  override def hashReadWrite: ReadWrite = new ReadWriteFile(hashSP.toFile, "rw")
+  override def recordReadWrite: ReadWrite = new ReadWriteChannel(recordSP)
+  override def headerReadWrite: ReadWrite = new ReadWriteChannel(headerSP)
+  override def hashReadWrite: ReadWrite = new ReadWriteChannel(hashSP)
 
   override def toString: String = "RealStorageInfoRW[" + gotRecordSP + "]"
   override def name: String = gotRecordSP.getFileName.toString
@@ -215,8 +215,8 @@ class RealStorageInfoGzip(gotRecordSP: Path, bufferSize: Int = 4096) extends Sto
   override def hashReadStream: ReadStream = ReadDataStream.fromPath(hashSP, bufferSize)
 
   override def recordReadWrite: ReadWrite = sys.error("Cannot make ReadWrite for gzipped file:" + recordGzipSP)
-  override def headerReadWrite: ReadWrite = new ReadWriteFile(headerSP.toFile, "rw")
-  override def hashReadWrite: ReadWrite = new ReadWriteFile(hashSP.toFile, "rw")
+  override def headerReadWrite: ReadWrite = new ReadWriteChannel(headerSP)
+  override def hashReadWrite: ReadWrite = new ReadWriteChannel(hashSP)
 
   override def toString: String = "RealStorageInfoGzip[" + gotRecordSP + "]"
   override def name: String = gotRecordSP.getFileName.toString

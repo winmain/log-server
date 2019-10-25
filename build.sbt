@@ -38,7 +38,7 @@ lazy val core = Project(
   settings = commonSettings ++ Seq(
     libraryDependencies ++= Seq(jacksonAnnotations)
   )
-)
+).disablePlugins(sbtassembly.AssemblyPlugin)
 
 lazy val client = Project(
   id = "log-server-client",
@@ -46,7 +46,7 @@ lazy val client = Project(
   settings = commonSettings ++ Seq(
     libraryDependencies ++= Seq(slf4jApi)
   )
-).dependsOn(core)
+).disablePlugins(sbtassembly.AssemblyPlugin).dependsOn(core)
 
 lazy val db = Project(
   id = "log-server-db",
@@ -63,14 +63,18 @@ lazy val db = Project(
       specs2Mock
     )
   )
-).dependsOn(core)
+).disablePlugins(sbtassembly.AssemblyPlugin).dependsOn(core)
 
 lazy val app = Project(
   id = "log-server",
   base = file("."),
   settings = commonSettings ++ Seq(
     libraryDependencies ++= Seq(
-      logbackClassic
+      jimfs,
+      logbackClassic,
+      slf4jNop,
+      specs2Core,
+      specs2Mock
     ),
 
     crossPaths := false,
@@ -91,6 +95,6 @@ lazy val app = Project(
       art.copy(`classifier` = Some("assembly"))
     }
   )
-).dependsOn(db).aggregate(core, client, db)
+).dependsOn(client, db).aggregate(core, client, db)
 
 addArtifact(artifact in(Compile, assembly), assembly)

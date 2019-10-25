@@ -1,8 +1,8 @@
 package com.github.winmain.logserver.db.reader
 import java.io._
-import java.nio.channels.Channels
+import java.nio.channels.{Channels, FileChannel}
 import java.nio.charset.{Charset, StandardCharsets}
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, StandardOpenOption}
 import java.util.concurrent.BlockingQueue
 import java.util.zip.GZIPInputStream
 
@@ -54,15 +54,16 @@ class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
     logPath: Path,
     result: BlockingQueue[SourceLogRecord]
   ): Unit = {
-    var raf: RandomAccessFile = null
+    var fileChannel: FileChannel = null
     try {
       val logFileName: String = logPath.getFileName.toString
 
       log.info("Reading " + logPath)
-      raf = new RandomAccessFile(logPath.toFile, "r")
+      fileChannel = FileChannel.open(logPath, StandardOpenOption.READ)
+
       val stream = new DataInputStream({
         val bufStream: BufferedInputStream =
-          new BufferedInputStream(Channels.newInputStream(raf.getChannel))
+          new BufferedInputStream(Channels.newInputStream(fileChannel))
         if (logFileName.endsWith(".gz")) new GZIPInputStream(bufStream)
         else bufStream
       })
@@ -107,8 +108,8 @@ class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
       case _: InterruptedException => // just return
       case e: Throwable =>
         throw new RuntimeException(
-          "Error reading " + logPath + " at " + (if (raf == null) "[unknown]"
-                                                 else raf.getFilePointer),
+          "Error reading " + logPath + " at " + (if (fileChannel == null) "[unknown]"
+                                                 else fileChannel.position()),
           e
         )
     }

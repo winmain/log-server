@@ -1,7 +1,9 @@
 package com.github.winmain.logserver.db.storage
 
 import java.io._
-import java.nio.file.{Files, Path}
+import java.nio.channels.FileChannel
+import java.nio.file.{Files, OpenOption, Path}
+import java.nio.file.StandardOpenOption._
 import java.nio.{BufferUnderflowException, ByteBuffer}
 import java.util.zip.GZIPInputStream
 
@@ -98,20 +100,21 @@ object EmptyDataStream extends ReadStream {
 object ReadDataStream {
   def fromPath(path: Path, bufferSize: Int): ReadStream = {
     if (Files.exists(path)) {
-      val raf: RandomAccessFile = new RandomAccessFile(path.toFile, "r")
+      //val raf: RandomAccessFile = new RandomAccessFile(path.toFile, "r")
+      val inputStream = Files.newInputStream(path, READ)
       if (path.getFileName.toString.endsWith(".gz"))
         new ReadDataStream(
           new DataInputStream(
-            new GZIPInputStream(new FileInputStream(raf.getFD), bufferSize)
+            new GZIPInputStream(inputStream, bufferSize)
           ),
           None
         )
       else
         new ReadDataStream(
           new DataInputStream(
-            new BufferedInputStream(new FileInputStream(raf.getFD), bufferSize)
+            new BufferedInputStream(inputStream, bufferSize)
           ),
-          Some(raf.length())
+          Some(Files.size(path))
         )
     } else EmptyDataStream
   }
@@ -164,6 +167,52 @@ object ReadWrite {
   }
 
 }
+
+
+class ReadWriteChannel(path: Path,
+                       options: Seq[OpenOption] = Seq(CREATE, READ, WRITE)
+                      ) extends ReadWrite  {
+  private val channel = FileChannel.open(path, options: _*)
+
+  override def seek(n: Long): Unit = channel.position(n)
+  override def length: Long = channel.size()
+  override def filePath: String = path.toString
+  override def truncate(n: Long): Unit = channel.truncate(n)
+  override def putByte(v: Byte): Unit = channel.write(ByteBuffer.wrap(Array(v)))
+  override def putShort(v: Short): Unit = write(2, _.putShort(v))
+  override def putInt(v: Int): Unit = write(4, _.putInt(v))
+  override def putLong(v: Long): Unit = write(8, _.putLong(v))
+  override def put(src: Array[Byte]): Unit = channel.write(ByteBuffer.wrap(src))
+  override def put(src: ByteBuffer): Unit = channel.write(src)
+  override def pos: Long = channel.position()
+  override def skip(n: Long): Unit = channel.position(channel.position() + n)
+  override def available: Boolean = channel.position() < channel.size()
+  override def close(): Unit = channel.close()
+  /** Вернуть размер всего файла. Если размер недоступен, вернётся None (для gzip файлов). */
+  override def maybeLength: Option[Long] = Some(channel.size())
+  override def getByte: Byte = read(1).get
+  override def getShort: Short = read(2).getShort
+  override def getInt: Int = read(4).getInt
+  override def getLong: Long = read(8).getLong
+  override def get(dst: Array[Byte]): Unit = channel.read(ByteBuffer.wrap(dst))
+  override def get(dst: ByteBuffer): Unit = channel.read(dst)
+
+  private def read(capacity: Int): ByteBuffer = {
+    val buf = ByteBuffer.allocate(capacity)
+    channel.read(buf)
+    buf.position(0)
+    buf
+  }
+
+  @inline
+  private def write(capacity: Int, fn: ByteBuffer => Unit): Unit = {
+    val buf = ByteBuffer.allocate(capacity)
+    fn(buf)
+    buf.position(0)
+    channel.write(buf)
+  }
+}
+
 
 class ReadWriteFile(file: File, mode: String = "rw") extends ReadWrite {
   val raf: RandomAccessFile = new RandomAccessFile(file, mode)
