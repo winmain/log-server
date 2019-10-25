@@ -35,14 +35,16 @@ object LogServerDb {
                   minTimestamp: Long,
                   maxTimestamp: Long)
 
+  class LogServerError(msg: String) extends RuntimeException(msg)
+
   private class Impl(dbDir: Path, log: Logger) extends LogServerDb {
 
     def get(tableName: String, recordId: RecordId): Seq[JsRecord] = {
       val records = new ArrayBuffer[JsRecord]()
 
-      if (!Files.isDirectory(dbDir)) exitError("No database in dir " + dbDir.toAbsolutePath)
+      if (!Files.isDirectory(dbDir)) throw new LogServerError("No database in dir " + dbDir.toAbsolutePath)
       val big = new ReadOnlyBigStorage(new RealDirectory(dbDir))
-      if (big.storages.isEmpty) exitError("No database in dir " + dbDir.toAbsolutePath)
+      if (big.storages.isEmpty) throw new LogServerError("No database in dir " + dbDir.toAbsolutePath)
 
       records ++= big.getRecords(tableName, recordId).map { r =>
         JsRecord(timestamp = r.timestamp, tableName = r.tableName, id = r.id, data = new Predef.String(r.data, LogServer.Charset))
@@ -94,13 +96,6 @@ object LogServerDb {
       val big: AppendableBigStorage = new AppendableBigStorage(new RealDirectory(dbDir))
       big.archive()
       big.close()
-    }
-
-    // internal
-
-    protected def exitError(error: String): Nothing = {
-      println(error)
-      sys.exit(-1)
     }
 
   }

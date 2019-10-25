@@ -2,7 +2,8 @@ package com.github.winmain.logserver
 
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.joran.JoranConfigurator
-import com.github.winmain.logserver.command.{ArchiveCommand, Command, CommandUtils, ConvertMonthCommand, ConvertYearCommand, GetCommand, InfoCommand, UpdateCommand}
+import com.github.winmain.logserver.command._
+import com.github.winmain.logserver.db.LogServerDb.LogServerError
 import org.slf4j.{Logger, LoggerFactory}
 
 object Cmd extends CommandUtils {
@@ -32,7 +33,14 @@ object Cmd extends CommandUtils {
     val params: Array[String] = args.drop(1)
     val log: Logger = LoggerFactory.getLogger("main")
     log.info("Run: " + args.mkString(" "))
-    cmd.run(log, params)
+
+    try {
+      cmd.run(log, params)
+    } catch {
+      case ex: LogServerError =>
+        println(ex.getMessage)
+        sys.exit(1)
+    }
   }
 
   private def configureLogback(configFilename: String): Unit = {
@@ -43,7 +51,7 @@ object Cmd extends CommandUtils {
     configurator.doConfigure(getClass.getClassLoader.getResource(configFilename))
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit =
     run(args, isDev = false)
-  }
+
 }
