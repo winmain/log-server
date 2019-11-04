@@ -2,7 +2,7 @@ package com.github.winmain.logserver.db.storage
 
 import java.util.concurrent.TimeUnit
 
-import com.github.winmain.logserver.core.LogServer
+import com.github.winmain.logserver.core.{LogServer, UInt29}
 import com.github.winmain.logserver.db.storage.Storage._
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -123,7 +123,7 @@ abstract class RecordStorage(opts: StorageOpts) {
    */
   protected def writeRecord(record: Record, rw: ReadWrite): Boolean = {
     val tableNameBytes: Array[Byte] = record.tableName.getBytes(LogServer.Charset)
-    val size: Long = 8L + 4 + tableNameBytes.length + record.id.length + 4 + record.data.length
+    val size: Long = 8L + UInt29.size(tableNameBytes.length) + tableNameBytes.length + record.id.length + UInt29.size(record.data.length) + record.data.length
     if (endFileOffset + size > opts.maxOffset) false
     else {
       val pos0 = rw.pos

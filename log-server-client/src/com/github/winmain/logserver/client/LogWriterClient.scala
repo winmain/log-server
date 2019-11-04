@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 import com.github.winmain.logserver.core.RecordId.{EmptyRecordId, IntRecordId, StringRecordId}
+import com.github.winmain.logserver.core.UInt29Writer.toUInt29WriterOps
 import com.github.winmain.logserver.core._
 import org.slf4j.Logger
 
@@ -25,6 +26,8 @@ class LogWriterClient(writeDir: Path,
                       fileLifetimeMillis: Long = 5 * 60 * 1000L,
                       addProcessSuffix: Boolean = false,
                       logger: Logger) {
+
+  import LogWriterClient._
 
   private val lock = new Object
   private var fileStream: DataOutputStream = _
@@ -56,7 +59,7 @@ class LogWriterClient(writeDir: Path,
   private def append(normalizedTableName: String, id: RecordId, timestamp: Long, log: String): Unit = {
     def writeStr(s: String): Unit = {
       val bytes = s.getBytes(LogServer.Charset)
-      fileStream.writeInt(bytes.length)
+      fileStream.writeUInt29(bytes.length)
       fileStream.write(bytes)
     }
 
@@ -90,7 +93,7 @@ class LogWriterClient(writeDir: Path,
 
       case id: StringRecordId =>
         fileStream.writeByte(RecordId.StringIdMarker)
-        fileStream.writeInt(id.value.length)
+        fileStream.writeUInt29(id.value.length)
         fileStream.write(id.value)
 
       case EmptyRecordId =>
@@ -132,4 +135,10 @@ class LogWriterClient(writeDir: Path,
         }
     }
   }
+}
+
+object LogWriterClient {
+
+  implicit val dataOutputStreamUInt29Writer: UInt29Writer[DataOutputStream] = _.writeByte(_)
+
 }

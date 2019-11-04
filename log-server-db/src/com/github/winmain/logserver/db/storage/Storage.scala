@@ -4,6 +4,8 @@ import java.io.IOException
 import java.util
 
 import com.github.winmain.logserver.core.RecordId
+import com.github.winmain.logserver.core.UInt29Reader._
+import com.github.winmain.logserver.core.UInt29Writer._
 import com.github.winmain.logserver.db.utils.MurmurHash3
 
 object Storage {
@@ -47,7 +49,7 @@ object Storage {
     MurmurHash3.hash(data) ^ ((timestamp >> 32) ^ (timestamp & 0xffffffff)).toInt
 
   private[db] def readBytes(read: ReadStream): Array[Byte] = {
-    val size: Int = read.getInt
+    val size: Int = read.readUInt29()
     if (size > MaxBytesBuffer)
       throw new IOException(
         "Read too big byte array size: " + size + ". Broken data?"
@@ -61,7 +63,7 @@ object Storage {
       bytes.length <= MaxBytesBuffer,
       "Cannot write too big byte array of size: " + bytes.length + ", max: " + MaxBytesBuffer
     )
-    rw.putInt(bytes.length)
+    rw.writeUInt29(bytes.length)
     rw.put(bytes)
   }
 

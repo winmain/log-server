@@ -69,7 +69,7 @@ object RecordId {
 
   class StringRecordId(val value: Array[Byte]) extends RecordId {
     def hash: Int = value.foldLeft(0)(_ + _ * 31)
-    def length: Int = 1 + 4 + value.length
+    def length: Int = 1 + UInt29.size(value.length) + value.length
     override def toString: String = new String(value, LogServer.Charset)
   }
 

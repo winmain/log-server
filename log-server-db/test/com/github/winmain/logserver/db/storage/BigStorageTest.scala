@@ -2,6 +2,7 @@ package com.github.winmain.logserver.db.storage
 
 import com.github.winmain.logserver.core.RecordId
 import com.github.winmain.logserver.db.storage.Storage.Record
+import com.google.common.jimfs.{Configuration, Jimfs}
 import org.slf4j.Logger
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -48,7 +49,9 @@ class BigStorageTest extends Specification with Mockito {
   }
 
   "write & read records with string keys" in {
-    val dir = new FakeDirectory()
+    val fs = Jimfs.newFileSystem(Configuration.unix())
+    val path = fs.getPath("/")
+    val dir = new RealDirectory(path)
     val log = mock[Logger]
     val abs: AppendableBigStorage = new AppendableBigStorage(dir, log = log)
     abs.addRecord(sRec1) === true
@@ -62,6 +65,7 @@ class BigStorageTest extends Specification with Mockito {
     val rbs: ReadOnlyBigStorage = new ReadOnlyBigStorage(dir)
     rbs.getRecords("operation", RecordId("65ebd48c-aca3-45de-9614-40f4095e5531")) === Vector(sRec1, sRec2)
     rbs.close()
+    fs.close()
 
     success
   }

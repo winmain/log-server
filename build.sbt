@@ -9,7 +9,14 @@ val commonSettings = Seq(
   scalaVersion := DefaultScalaVersion,
   organization := "com.github.winmain",
 
-  scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-language:existentials"),
+  scalacOptions ++= Seq(
+    "-target:jvm-1.8",
+    "-unchecked",
+    "-deprecation",
+    "-feature",
+    "-language:existentials",
+    "-language:implicitConversions"
+  ),
   javacOptions ++= Seq("-source", "1.8"),
 
   scalaSource in Compile := baseDirectory.value / "src",
@@ -55,6 +62,7 @@ lazy val db = Project(
     libraryDependencies ++= Seq(
       jacksonDatabind,
       jacksonModuleScala,
+      jimfs,
       jsr305,
       kolobokeApiJdk8,
       kolobokeImplJdk8,

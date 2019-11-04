@@ -2,13 +2,15 @@ package com.github.winmain.logserver.db.storage
 
 import java.io._
 import java.nio.channels.FileChannel
-import java.nio.file.{Files, OpenOption, Path}
 import java.nio.file.StandardOpenOption._
+import java.nio.file.{Files, OpenOption, Path}
 import java.nio.{BufferUnderflowException, ByteBuffer}
 import java.util.zip.GZIPInputStream
+import com.github.winmain.logserver.core.UInt29Reader._
+import com.github.winmain.logserver.core.UInt29Writer._
 
-import com.github.winmain.logserver.core.RecordId
 import com.github.winmain.logserver.core.RecordId.{EmptyRecordId, IntRecordId, StringRecordId}
+import com.github.winmain.logserver.core.{RecordId, UInt29Reader, UInt29Writer}
 
 // ------------------------------- ReadStream -------------------------------
 
@@ -35,7 +37,8 @@ object ReadStream {
     def getRecordId: RecordId =
       readStream.getByte match {
         case RecordId.StringIdMarker =>
-          val size = readStream.getInt
+          val size = readStream.readUInt29()
+
           val bytes = new Array[Byte](size)
           readStream.get(bytes)
 
@@ -48,6 +51,8 @@ object ReadStream {
           RecordId(readStream.getInt)
       }
   }
+
+  implicit val uInt29Reader: UInt29Reader[ReadStream] = _.getByte
 
 }
 
@@ -158,13 +163,15 @@ object ReadWrite {
 
         case s: StringRecordId =>
           readWrite.putByte(RecordId.StringIdMarker)
-          readWrite.putInt(s.value.length)
+          readWrite.writeUInt29(s.value.length)
           readWrite.put(s.value)
 
         case EmptyRecordId =>
           readWrite.putByte(RecordId.EmptyIdMarker)
       }
   }
+
+  implicit val uInt29Writer: UInt29Writer[ReadWrite] = _.putByte(_)
 
 }
 

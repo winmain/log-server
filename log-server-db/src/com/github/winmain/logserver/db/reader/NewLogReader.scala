@@ -6,9 +6,9 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 import java.util.concurrent.BlockingQueue
 import java.util.zip.GZIPInputStream
 
-import com.github.winmain.logserver.core.{LogServer, RecordId}
+import com.github.winmain.logserver.core.UInt29Reader._
+import com.github.winmain.logserver.core.{LogServer, RecordId, UInt29Reader}
 import com.github.winmain.logserver.db.SourceLogRecord
-import com.github.winmain.logserver.db.reader.NewLogReader.DataInputStreamOps
 import com.github.winmain.logserver.db.storage.Storage
 import org.slf4j.Logger
 
@@ -17,6 +17,8 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
+  import NewLogReader._
+
   val charset: Charset = StandardCharsets.UTF_8
 
   val processedSources: mutable.Buffer[Path] = new ArrayBuffer[Path]()
@@ -92,7 +94,7 @@ class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
       }
 
       def readStr(): String = {
-        val length: Int = stream.readInt()
+        val length: Int = stream.readUInt29()
         if (length > Storage.MaxBytesBuffer)
           throw new IOException(
             "Read too big byte array size: " + length + ". Broken data?"
@@ -118,12 +120,14 @@ class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
 
 object NewLogReader {
 
+  implicit val dataInputStreamUInt29Reader: UInt29Reader[DataInputStream] = _.readByte()
+
   implicit class DataInputStreamOps(val in: DataInputStream) extends AnyVal {
 
     def readRecordId(): RecordId = {
       in.readByte() match {
         case RecordId.StringIdMarker =>
-          val size = in.readInt()
+          val size = in.readUInt29()
           val bytes = new Array[Byte](size)
           in.read(bytes)
 
