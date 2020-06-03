@@ -1,6 +1,6 @@
-val DefaultScalaVersion = "2.12.9"
+val DefaultScalaVersion = "2.12.10"
 
-val LogServerVersion = "1.2"
+val LogServerVersion = "1.2.1"
 
 import Dependecies._
 

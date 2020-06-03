@@ -178,7 +178,7 @@ class ReadOnlyBigStorage(dir: Directory,
       val offsets: Vector[Int] = hs.getOffsets(tableName, id)
       if (offsets.nonEmpty) {
         val rs: ReadOnceRecordStorage = new ReadOnceRecordStorage(storage.info.recordReadStream, opts)
-        result ++= rs.readRecords(offsets)
+        result ++= rs.readRecords(offsets).filter(_.id == id)
         rs.close()
       }
     }
