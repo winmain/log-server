@@ -34,7 +34,7 @@ class OldLogReader(baseDir: File) extends LogReader {
     override def timestamp: Long = dateTime.toMillis
   }
 
-  def readLogs(result: BlockingQueue[SourceLogRecord]) {
+  def readLogs(result: BlockingQueue[SourceLogRecord]): Unit = {
     for {logFile <- files if logFile.length() > 0L
          tableNameMatch <- OldLogReader.tableNameExtractor.findFirstMatchIn(logFile.getName)
          tableName = tableNameMatch.group(1)} {

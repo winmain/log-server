@@ -42,7 +42,7 @@ class LongByteBuffer(val bb: ByteBuffer) {
     dst.put(src)
   }
 
-  def sort() {
+  def sort(): Unit = {
     LongByteBufferUtils.sort(this, 0, length - 1, null, 0, 0)
   }
 }

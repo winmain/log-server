@@ -25,7 +25,7 @@ object Dates {dates=>
    * Number of milliseconds in a standard day.
    */
   val DAY: Long = 24 * HOUR
-  val DAY_DOUBLE: Double = DAY
+  val DAY_DOUBLE: Double = DAY.toDouble
 
   /**
    * Сдвиг Москвы GMT+3 в миллисекундах

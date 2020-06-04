@@ -190,7 +190,7 @@ abstract class HeaderStorage extends EssentialHeaderStorage {
    * получив новый сортированный массив всех оффсетов.
    * Этот метод перезаписывает [[tableIdOffsets]] новым массивом, и обнуляет [[newTableIdOffsets]]
    */
-  protected def mergeTableIdOffsets() {
+  protected def mergeTableIdOffsets(): Unit =  {
     val result: LongByteBuffer = tableIdOffsets.enlargeCopy(count)
     var i = tableIdOffsets.length
     newTableIdOffsets.forEach(new IntObjConsumer[List[Int]] {
@@ -209,7 +209,7 @@ abstract class HeaderStorage extends EssentialHeaderStorage {
    * получив новый сортированный массив всех хешей.
    * Этот метод перезаписывает [[tableIdHashes]] новым массивом, и обнуляет [[newTableIdHashes]]
    */
-  protected def mergeTableIdHashes() {
+  protected def mergeTableIdHashes(): Unit = {
     var i = 0
     val result: LongByteBuffer = {
       i = tableIdHashes.length

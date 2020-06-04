@@ -67,13 +67,13 @@ object Storage {
     rw.put(bytes)
   }
 
-  private[db] def readLongByteBuffer(read: ReadStream,
-                                       count: Int): LongByteBuffer = {
+  private[db] def readLongByteBuffer(read: ReadStream, count: Int): LongByteBuffer = {
     val lbb: LongByteBuffer = new LongByteBuffer(count)
     read.get(lbb.bb)
     lbb
   }
-  private[db] def writeLongByteBuffer(rw: ReadWrite, lbb: LongByteBuffer) {
+
+  private[db] def writeLongByteBuffer(rw: ReadWrite, lbb: LongByteBuffer): Unit = {
     lbb.bb.rewind()
     rw.put(lbb.bb)
   }

@@ -9,6 +9,7 @@ import com.github.winmain.logserver.db.storage._
 import org.slf4j.Logger
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.Seq
 
 trait LogServerDb {
   def get(tableName: String, recordId: RecordId): Seq[JsRecord]

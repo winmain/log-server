@@ -9,6 +9,8 @@ val commonSettings = Seq(
   scalaVersion := DefaultScalaVersion,
   organization := "com.github.winmain",
 
+  crossScalaVersions := Seq(DefaultScalaVersion, "2.13.2"),
+
   scalacOptions ++= Seq(
     "-target:jvm-1.8",
     "-unchecked",

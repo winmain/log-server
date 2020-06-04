@@ -16,9 +16,9 @@ import com.github.winmain.logserver.core.{RecordId, UInt29Reader, UInt29Writer}
 
 trait ReadStream {
   def pos: Long
-  def skip(n: Long)
+  def skip(n: Long): Unit
   def available: Boolean
-  def close()
+  def close(): Unit
 
   /** Вернуть размер всего файла. Если размер недоступен, вернётся None (для gzip файлов). */
   def maybeLength: Option[Long]
@@ -27,8 +27,8 @@ trait ReadStream {
   def getShort: Short
   def getInt: Int
   def getLong: Long
-  def get(dst: Array[Byte])
-  def get(dst: ByteBuffer)
+  def get(dst: Array[Byte]): Unit
+  def get(dst: ByteBuffer): Unit
 }
 
 object ReadStream {
@@ -139,17 +139,17 @@ object IoDataStreamException {
 // ------------------------------- ReadWrite -------------------------------
 
 trait ReadWrite extends ReadStream {
-  def seek(n: Long)
+  def seek(n: Long): Unit
   def length: Long
   def filePath: String
-  def truncate(n: Long)
+  def truncate(n: Long): Unit
 
-  def putByte(v: Byte)
-  def putShort(v: Short)
-  def putInt(v: Int)
-  def putLong(v: Long)
-  def put(src: Array[Byte])
-  def put(src: ByteBuffer)
+  def putByte(v: Byte): Unit
+  def putShort(v: Short): Unit
+  def putInt(v: Int): Unit
+  def putLong(v: Long): Unit
+  def put(src: Array[Byte]): Unit
+  def put(src: ByteBuffer): Unit
 }
 
 object ReadWrite {

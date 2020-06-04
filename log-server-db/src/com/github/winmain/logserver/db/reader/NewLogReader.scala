@@ -15,6 +15,7 @@ import org.slf4j.Logger
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.Seq
 
 class NewLogReader(sources: Seq[Path], log: Logger) extends LogReader {
   import NewLogReader._
