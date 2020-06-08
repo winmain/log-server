@@ -1,6 +1,6 @@
-val DefaultScalaVersion = "2.12.9"
+val DefaultScalaVersion = "2.12.10"
 
-val LogServerVersion = "1.2"
+val LogServerVersion = "1.2.1"
 
 import Dependecies._
 
@@ -8,6 +8,8 @@ val commonSettings = Seq(
   version := LogServerVersion,
   scalaVersion := DefaultScalaVersion,
   organization := "com.github.winmain",
+
+  crossScalaVersions := Seq(DefaultScalaVersion, "2.13.2"),
 
   scalacOptions ++= Seq(
     "-target:jvm-1.8",

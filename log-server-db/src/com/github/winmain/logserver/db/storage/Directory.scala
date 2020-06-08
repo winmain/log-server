@@ -9,6 +9,7 @@ import org.slf4j.Logger
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.Seq
 import scala.util.Try
 
 // ------------------------------- Directory traits -------------------------------
@@ -20,8 +21,8 @@ trait Directory {
 
   def locked: Boolean
   def canLock: Boolean
-  def lock(log: Logger, wait: (Int, TimeUnit))
-  def unlock()
+  def lock(log: Logger, wait: (Int, TimeUnit)): Unit
+  def unlock(): Unit
 }
 
 trait StorageInfo {
@@ -110,12 +111,12 @@ class RealDirectory(basePath: Path) extends Directory {
     }
   }
 
-  private val _infos: mutable.Buffer[StorageInfo] = recordStoragePaths.map {path =>
+  private val _infos: mutable.Buffer[StorageInfo] = recordStoragePaths.view.map {path =>
     path.getFileName.toString match {
       case s if s.endsWith(".record") => new RealStorageInfoRW(path)
       case s if s.endsWith(".record.gz") => new RealStorageInfoGzip(path)
     }
-  }(scala.collection.breakOut)
+  }.toBuffer
 
   override def infos: Seq[StorageInfo] = _infos
   override def addNewInfo(): StorageInfo = {

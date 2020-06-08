@@ -19,7 +19,7 @@ object FileUtils {
    * Сжать файл #path и вернуть новое имя сжатого файла.
    */
   def gzipFile(path: Path): Path = {
-    val gzPath = path.resolveSibling(path.getFileName + ".gz")
+    val gzPath = path.resolveSibling(path.getFileName.toString + ".gz")
     val output: GZIPOutputStream = new GZIPOutputStream(Files.newOutputStream(gzPath), 8192)
     Files.copy(path, output)
     output.close()

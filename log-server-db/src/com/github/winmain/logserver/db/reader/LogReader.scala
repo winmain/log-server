@@ -4,5 +4,5 @@ import java.util.concurrent.BlockingQueue
 import com.github.winmain.logserver.db.SourceLogRecord
 
 trait LogReader {
-  def readLogs(result: BlockingQueue[SourceLogRecord])
+  def readLogs(result: BlockingQueue[SourceLogRecord]): Unit
 }

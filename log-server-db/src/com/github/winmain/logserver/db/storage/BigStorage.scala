@@ -5,6 +5,7 @@ import com.github.winmain.logserver.db.storage.Storage._
 import javax.annotation.concurrent.NotThreadSafe
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.ref.SoftReference
@@ -46,7 +47,7 @@ abstract class BigStorage(dir: Directory,
       newHs
     }
 
-    protected def updateHs(newHs: HeaderStorage)
+    protected def updateHs(newHs: HeaderStorage): Unit
   }
 
 
@@ -161,7 +162,7 @@ abstract class BigStorage(dir: Directory,
 class ReadOnlyBigStorage(dir: Directory,
                          opts: StorageOpts = new StorageOpts,
                          log: Logger = LoggerFactory.getLogger(classOf[BigStorage])) extends BigStorage(dir, opts, log) {
-  val storages: Vector[Storage] = dir.infos.map(new ReadOnlyStorage(_))(collection.breakOut)
+  val storages: Vector[Storage] = dir.infos.view.map(new ReadOnlyStorage(_)).toVector
 
   def getRecords(tableName: String, id: RecordId): Vector[Record] = {
     requireLocked()
@@ -178,7 +179,7 @@ class ReadOnlyBigStorage(dir: Directory,
       val offsets: Vector[Int] = hs.getOffsets(tableName, id)
       if (offsets.nonEmpty) {
         val rs: ReadOnceRecordStorage = new ReadOnceRecordStorage(storage.info.recordReadStream, opts)
-        result ++= rs.readRecords(offsets)
+        result ++= rs.readRecords(offsets).filter(_.id == id)
         rs.close()
       }
     }
@@ -282,7 +283,8 @@ class AppendableBigStorage(dir: Directory,
     override protected def updateHs(newHs: HeaderStorage): Unit = _hs = newHs
   }
 
-  private[storage] val storages: mutable.ArrayBuffer[Storage] = dir.infos.map(new ReadOnlyStorage(_))(collection.breakOut)
+  private[storage] val storages: mutable.Buffer[Storage] = dir.infos.view.map(new ReadOnlyStorage(_): Storage).toBuffer
+
   private var appendStorageIdx = 0
 
   private def containsRecord(record: Record, hash: Int): Boolean = storages.exists(_.containsRecord(record, hash))
@@ -345,7 +347,7 @@ class AppendableBigStorage(dir: Directory,
     }
   }
 
-  override def close() = {
+  override def close(): Unit = {
     storages.foreach(_.close())
     super.close()
   }
