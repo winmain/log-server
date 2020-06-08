@@ -162,7 +162,7 @@ abstract class BigStorage(dir: Directory,
 class ReadOnlyBigStorage(dir: Directory,
                          opts: StorageOpts = new StorageOpts,
                          log: Logger = LoggerFactory.getLogger(classOf[BigStorage])) extends BigStorage(dir, opts, log) {
-  val storages: Vector[Storage] = dir.infos.map(new ReadOnlyStorage(_)).toVector
+  val storages: Vector[Storage] = dir.infos.view.map(new ReadOnlyStorage(_)).toVector
 
   def getRecords(tableName: String, id: RecordId): Vector[Record] = {
     requireLocked()
@@ -283,11 +283,7 @@ class AppendableBigStorage(dir: Directory,
     override protected def updateHs(newHs: HeaderStorage): Unit = _hs = newHs
   }
 
-  private[storage] val storages: mutable.ArrayBuffer[Storage] = {
-    val v = dir.infos.map(new ReadOnlyStorage(_))
-    val buffer = new ArrayBuffer[Storage](v.length)
-    buffer ++= v
-  }
+  private[storage] val storages: mutable.Buffer[Storage] = dir.infos.view.map(new ReadOnlyStorage(_): Storage).toBuffer
 
   private var appendStorageIdx = 0
 

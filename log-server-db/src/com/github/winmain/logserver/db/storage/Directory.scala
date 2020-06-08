@@ -111,7 +111,7 @@ class RealDirectory(basePath: Path) extends Directory {
     }
   }
 
-  private val _infos: mutable.Buffer[StorageInfo] = recordStoragePaths.map {path =>
+  private val _infos: mutable.Buffer[StorageInfo] = recordStoragePaths.view.map {path =>
     path.getFileName.toString match {
       case s if s.endsWith(".record") => new RealStorageInfoRW(path)
       case s if s.endsWith(".record.gz") => new RealStorageInfoGzip(path)

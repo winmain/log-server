@@ -15,7 +15,7 @@ case class UpdateCommand() extends Command {
     if (params.length < 2) exitError("Usage: update <db-dir> <updates>")
 
     val dbDir = Paths.get(params(0))
-    val updatePaths: Vector[Path] = params.drop(1).map(Paths.get(_)).toVector
+    val updatePaths: Vector[Path] = params.view.drop(1).map(Paths.get(_)).toVector
 
     LogServerDb.create(dbDir, log).update(updatePaths)
 
