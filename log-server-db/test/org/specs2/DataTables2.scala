@@ -3,8 +3,6 @@ package org.specs2
 import org.specs2.execute.DecoratedResult
 import org.specs2.matcher.{DataTable, DataTables, MatchResult}
 
-import scala.collection.breakOut
-
 trait DataTables2 extends DataTables {
   trait CheckedRow {
     def validate: MatchResult[Any]
@@ -23,6 +21,6 @@ trait DataTables2 extends DataTables {
    */
 
   def table1[R <: CheckedRow](rows: R*): DecoratedResult[DataTable] = {
-    Table1[R](List("a row"), rows.map(DataRow1.apply)(breakOut)).executeRow(_.validate, exec = true)
+    Table1[R](List("a row"), rows.view.map(DataRow1.apply).toList).executeRow(_.validate, exec = true)
   }
 }
