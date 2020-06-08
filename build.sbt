@@ -1,4 +1,4 @@
-val LogServerVersion = "1.2.1"
+val LogServerVersion = "1.2.2"
 
 val DefaultScalaVersion = "2.12.10"
 
@@ -86,7 +86,7 @@ lazy val app = Project(
       specs2Mock
     ),
 
-    crossPaths := false,
+    crossPaths := true,
 
     assemblyJarName in assembly := "log-server.jar",
     mainClass in assembly := Some("com.github.winmain.logserver.Cmd"),
