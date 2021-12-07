@@ -100,6 +100,8 @@ abstract class BigStorage(dir: Directory,
 
     override protected def updateHs(newHs: HeaderStorage): Unit = {
       if (hsRefWasSet && hsRef.get.isEmpty) {
+        // Если это сообщение вылетает очень часто и в цикле, скорей всего это значит, что серверу не хватает памяти,
+        // и он вынужден освобождать память и загружать HeaderStorage заново, что может значительно снижать производительность.
         log.info("Restoring evicted storage " + info)
       }
       hsRefWasSet = true
